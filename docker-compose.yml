@@ -1,0 +1,42 @@
+version: '2'
+services:
+  php:
+    build:
+      context: .
+      dockerfile: php.Dockerfile
+    depends_on:
+      - mysql
+    ports:
+      - "80:80"
+    volumes:
+      - ./www:/var/www/html
+    restart: always
+  mysql:
+    image: mariadb:latest
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  tomcat:
+    image: tomcat:latest
+    depends_on:
+      - mysql
+    restart: always
+    volumes:
+      - ./webapps:/usr/local/tomcat/webapps
+    ports:
+      - "8080:8080"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+    restart: always
+    ports:
+      - "81:80"
+volumes:
+  db_data:
